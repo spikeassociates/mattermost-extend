@@ -1,0 +1,4 @@
+id: com.mattermost.mattermost-extend
+name: Extend mattermost functionality plugin
+server:
+  executable: plugin
