@@ -4,7 +4,11 @@ import (
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
 	"github.com/pkg/errors"
+	"mattermos-extend/configuration"
 	"mattermos-extend/configuration/language"
+	"mattermos-extend/helper"
+	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 )
@@ -19,7 +23,16 @@ func main() {
 
 func (p *MMPlugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 
-	r, _ := regexp.Compile("^#(\\w+) (\\w+)(?: (\\d+))?$")
+	//Regular expression used for the replacement logic of incoming and outgoing webhooks
+	r, _ := regexp.Compile("^\\S+")
+	triggerWord := r.FindString(post.Message)
+
+	if helper.Contains(configuration.ChatWithMeTriggerWords, triggerWord) {
+		SendPostToChatWithMeExtension(post, triggerWord, p)
+	}
+
+	//Regular expression user for special commands like: open, create, edit, list that
+	r, _ = regexp.Compile("^#(\\w+) (\\w+)(?: (\\d+))?$")
 	matches := r.FindStringSubmatch(strings.TrimSpace(post.Message))
 
 	if len(matches) > 0 {
@@ -76,5 +89,49 @@ func (p *MMPlugin) OnActivate() error {
 
 	}
 
+	return nil
+}
+
+func SendPostToChatWithMeExtension(post *model.Post, triggerWord string, p *MMPlugin) error {
+
+	formData := url.Values{
+		"text":         {post.Message},
+		"token":        {configuration.ChatWithMeToken},
+		"trigger_word": {triggerWord},
+		"user_id":      {post.UserId},
+	}
+
+	resp, err := http.PostForm(configuration.ChatWithMeExtensionUrl, formData)
+	defer resp.Body.Close()
+
+	if err != nil {
+		return err
+	}
+
+	incomingWebhookPayload, decodeError := model.IncomingWebhookRequestFromJson(resp.Body)
+	if decodeError != nil {
+		return decodeError
+	}
+
+	if len(incomingWebhookPayload.Text) == 0 && incomingWebhookPayload.Attachments == nil {
+		return errors.New("Wrong response format")
+	}
+
+	newPost := &model.Post{
+		UserId:    post.UserId,
+		ChannelId: post.ChannelId,
+		Type:      model.POST_SLACK_ATTACHMENT,
+	}
+
+	if incomingWebhookPayload.Props != nil {
+		newPost.Props = incomingWebhookPayload.Props
+	}
+
+	newPost.AddProp("attachments", incomingWebhookPayload.Attachments)
+
+	_, err = p.API.CreatePost(newPost)
+	if err != nil {
+		return err
+	}
 	return nil
 }
