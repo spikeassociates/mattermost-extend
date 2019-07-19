@@ -1,16 +1,17 @@
 package main
 
 import (
-	"github.com/mattermost/mattermost-server/model"
-	"github.com/mattermost/mattermost-server/plugin"
-	"github.com/pkg/errors"
-	"mattermos-extend/configuration"
-	"mattermos-extend/configuration/language"
-	"mattermos-extend/helper"
+	"mattermost-extend/configuration"
+	"mattermost-extend/configuration/language"
+	"mattermost-extend/helper"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
+
+	"github.com/mattermost/mattermost-server/model"
+	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/pkg/errors"
 )
 
 type MMPlugin struct {
@@ -94,11 +95,15 @@ func (p *MMPlugin) OnActivate() error {
 
 func SendPostToChatWithMeExtension(post *model.Post, triggerWord string, p *MMPlugin) error {
 
+	cnl, _ := p.API.GetChannel(post.ChannelId)
+
 	formData := url.Values{
 		"text":         {post.Message},
 		"token":        {configuration.ChatWithMeToken},
 		"trigger_word": {triggerWord},
 		"user_id":      {post.UserId},
+		"chnl_name":    {cnl.Name},
+		"chnl_dname":   {cnl.DisplayName},
 	}
 
 	resp, err := http.PostForm(configuration.ChatWithMeExtensionUrl, formData)
