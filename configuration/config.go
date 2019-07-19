@@ -31,4 +31,6 @@ var ChatWithMeTriggerWords = []string{
 	"#remindme",
 	"#list",
 	"#task",
+	"#taskfortime",
+	"#taskforproject",
 }
