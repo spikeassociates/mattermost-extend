@@ -1,6 +1,9 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"mattermost-extend/configuration"
 	"mattermost-extend/configuration/language"
 	"mattermost-extend/helper"
@@ -139,4 +142,66 @@ func SendPostToChatWithMeExtension(post *model.Post, triggerWord string, p *MMPl
 		return err
 	}
 	return nil
+}
+
+func (p *MMPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
+
+	defer r.Body.Close()
+	rawBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintln(w, "Errror Geting body")
+		return
+	}
+
+	userRequest := configuration.User{}
+	err = json.Unmarshal(rawBody, &userRequest)
+	if err != nil {
+		fmt.Fprintln(w, "Errror Decoding Json user")
+		return
+	}
+
+	userCreate := userRequest.GetMMUser()
+	userExist, appError := p.API.GetUserByUsername(userCreate.Username)
+	if appError == nil {
+		addTeam(p, w, *userExist)
+		userReturn := configuration.User{}.GetUser(userExist)
+		jsonValue, _ := json.Marshal(userReturn)
+		w.Write(jsonValue)
+		return
+	}
+	userExist, appError = p.API.GetUserByEmail(userCreate.Email)
+	if appError == nil {
+		addTeam(p, w, *userExist)
+		userReturn := configuration.User{}.GetUser(userExist)
+		jsonValue, _ := json.Marshal(userReturn)
+		w.Write(jsonValue)
+		return
+	}
+
+	userCreated, appError := p.API.CreateUser(&userCreate)
+	if appError != nil && appError.StatusCode != http.StatusOK {
+		fmt.Fprintln(w, appError.ToJson())
+		return
+	}
+
+	addTeam(p, w, *userCreated)
+	userReturn := configuration.User{}.GetUser(userCreated)
+	jsonValue, _ := json.Marshal(userReturn)
+	w.Write(jsonValue)
+}
+
+func addTeam(p *MMPlugin, w http.ResponseWriter, user model.User) {
+	Client := model.NewAPIv4Client("http://localhost:8065")
+	Client.Login("your_admin", "admin_pass") //admin credencials
+	teams, appError := p.API.GetTeams()
+	if appError != nil {
+		fmt.Fprintln(w, "Response: "+appError.ToJson())
+		return
+	}
+	for _, team := range teams {
+		_, response := Client.AddTeamMember(team.Id, user.Id)
+		if response != nil && response.Error != nil {
+			fmt.Fprintln(w, response.Error.ToJson())
+		}
+	}
 }
