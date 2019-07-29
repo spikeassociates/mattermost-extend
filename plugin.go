@@ -109,6 +109,11 @@ func SendPostToChatWithMeExtension(post *model.Post, triggerWord string, p *MMPl
 		"chnl_dname":   {cnl.DisplayName},
 	}
 
+	newPost := &model.Post{
+		UserId:    post.UserId,
+		ChannelId: post.ChannelId,
+		Type:      model.POST_SLACK_ATTACHMENT,
+	}
 	resp, err := http.PostForm(configuration.ChatWithMeExtensionUrl, formData)
 	defer resp.Body.Close()
 
@@ -125,27 +130,32 @@ func SendPostToChatWithMeExtension(post *model.Post, triggerWord string, p *MMPl
 		return errors.New("Wrong response format")
 	}
 
-	newPost := &model.Post{
-		UserId:    post.UserId,
-		ChannelId: post.ChannelId,
-		Type:      model.POST_SLACK_ATTACHMENT,
-	}
-
 	if incomingWebhookPayload.Props != nil {
 		newPost.Props = incomingWebhookPayload.Props
 	}
-
+	newPost.Message = incomingWebhookPayload.Text
 	newPost.AddProp("attachments", incomingWebhookPayload.Attachments)
 
-	_, err = p.API.CreatePost(newPost)
-	if err != nil {
-		return err
-	}
+	p.API.SendEphemeralPost(newPost.UserId, newPost)
 	return nil
 }
 
 func (p *MMPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 
+	switch r.URL.Path {
+	case "/syncuser":
+		p.syncUserWithcoreBOS(c, w, r)
+	case "/hello":
+		p.handleHello(w, r)
+	case "/postmessage":
+		p.postMessage(c, w, r)
+	default:
+		http.NotFound(w, r)
+	}
+
+}
+
+func (p *MMPlugin) syncUserWithcoreBOS(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	rawBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -190,9 +200,42 @@ func (p *MMPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.R
 	w.Write(jsonValue)
 }
 
+func (p *MMPlugin) handleHello(writer http.ResponseWriter, request *http.Request) {
+	fmt.Fprintln(writer, "hello wold")
+}
+
+func (p *MMPlugin) postMessage(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
+	rawBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintln(w, "Errror Geting body")
+		return
+	}
+
+	incomingWebhookRequest := model.IncomingWebhookRequest{}
+	incomingWebhook := model.IncomingWebhook{}
+	err = json.Unmarshal(rawBody, &incomingWebhookRequest)
+	if err != nil {
+		fmt.Fprintln(w, "Errror Decoding Json user")
+		return
+	}
+	err = json.Unmarshal(rawBody, &incomingWebhook)
+	if err != nil {
+		fmt.Fprintln(w, "Errror Decoding Json user")
+		return
+	}
+	post := &model.Post{
+		UserId:    incomingWebhook.UserId,
+		ChannelId: incomingWebhook.ChannelId,
+		Props:     incomingWebhookRequest.Props,
+		Message:   incomingWebhookRequest.Text}
+	post.AddProp("attachments", incomingWebhookRequest.Attachments)
+	p.API.SendEphemeralPost(post.UserId, post)
+
+}
+
 func addTeam(p *MMPlugin, w http.ResponseWriter, user model.User) {
-	Client := model.NewAPIv4Client("http://localhost:8065")
-	Client.Login("your_admin", "admin_pass") //admin credencials
+	Client := model.NewAPIv4Client(configuration.MatterMostHost)
+	Client.Login(configuration.MatterMostAdminUsername, configuration.MatterMostAdminPassword) //admin credencials
 	teams, appError := p.API.GetTeams()
 	if appError != nil {
 		fmt.Fprintln(w, "Response: "+appError.ToJson())
