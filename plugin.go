@@ -105,6 +105,7 @@ func SendPostToChatWithMeExtension(post *model.Post, triggerWord string, p *MMPl
 		"token":        {configuration.ChatWithMeToken},
 		"trigger_word": {triggerWord},
 		"user_id":      {post.UserId},
+		"channel_id":   {post.ChannelId},
 		"chnl_name":    {cnl.Name},
 		"chnl_dname":   {cnl.DisplayName},
 	}
@@ -226,8 +227,11 @@ func (p *MMPlugin) postMessage(c *plugin.Context, w http.ResponseWriter, r *http
 	post := &model.Post{
 		UserId:    incomingWebhook.UserId,
 		ChannelId: incomingWebhook.ChannelId,
-		Props:     incomingWebhookRequest.Props,
 		Message:   incomingWebhookRequest.Text}
+
+	if incomingWebhookRequest.Props != nil {
+		post.Props = incomingWebhookRequest.Props
+	}
 	post.AddProp("attachments", incomingWebhookRequest.Attachments)
 	p.API.SendEphemeralPost(post.UserId, post)
 
