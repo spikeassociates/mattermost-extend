@@ -202,7 +202,7 @@ func (p *MMPlugin) syncUserWithcoreBOS(c *plugin.Context, w http.ResponseWriter,
 }
 
 func (p *MMPlugin) handleHello(writer http.ResponseWriter, request *http.Request) {
-	fmt.Fprintln(writer, "hello wold")
+	fmt.Fprintln(writer, "Anvil listening")
 }
 
 func (p *MMPlugin) postMessage(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
