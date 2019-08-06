@@ -99,6 +99,7 @@ func (p *MMPlugin) OnActivate() error {
 func SendPostToChatWithMeExtension(post *model.Post, triggerWord string, p *MMPlugin) error {
 
 	cnl, _ := p.API.GetChannel(post.ChannelId)
+	team, _ := p.API.GetTeam(cnl.TeamId)
 
 	formData := url.Values{
 		"text":         {post.Message},
@@ -106,6 +107,9 @@ func SendPostToChatWithMeExtension(post *model.Post, triggerWord string, p *MMPl
 		"trigger_word": {triggerWord},
 		"user_id":      {post.UserId},
 		"channel_id":   {post.ChannelId},
+		"team_id":      {cnl.TeamId},
+		"team_name":    {team.Name},
+		"team_dname":   {team.DisplayName},
 		"chnl_name":    {cnl.Name},
 		"chnl_dname":   {cnl.DisplayName},
 	}
@@ -164,7 +168,7 @@ func (p *MMPlugin) syncUserWithcoreBOS(c *plugin.Context, w http.ResponseWriter,
 		return
 	}
 
-	userRequest := configuration.User{}
+	userRequest := helper.User{}
 	err = json.Unmarshal(rawBody, &userRequest)
 	if err != nil {
 		fmt.Fprintln(w, "Errror Decoding Json user")
@@ -174,16 +178,16 @@ func (p *MMPlugin) syncUserWithcoreBOS(c *plugin.Context, w http.ResponseWriter,
 	userCreate := userRequest.GetMMUser()
 	userExist, appError := p.API.GetUserByUsername(userCreate.Username)
 	if appError == nil {
-		addTeam(p, w, *userExist)
-		userReturn := configuration.User{}.GetUser(userExist)
+		addTeam(p, w, *userExist, userRequest)
+		userReturn := helper.User{}.GetUser(userExist)
 		jsonValue, _ := json.Marshal(userReturn)
 		w.Write(jsonValue)
 		return
 	}
 	userExist, appError = p.API.GetUserByEmail(userCreate.Email)
 	if appError == nil {
-		addTeam(p, w, *userExist)
-		userReturn := configuration.User{}.GetUser(userExist)
+		addTeam(p, w, *userExist, userRequest)
+		userReturn := helper.User{}.GetUser(userExist)
 		jsonValue, _ := json.Marshal(userReturn)
 		w.Write(jsonValue)
 		return
@@ -195,8 +199,8 @@ func (p *MMPlugin) syncUserWithcoreBOS(c *plugin.Context, w http.ResponseWriter,
 		return
 	}
 
-	addTeam(p, w, *userCreated)
-	userReturn := configuration.User{}.GetUser(userCreated)
+	addTeam(p, w, *userCreated, userRequest)
+	userReturn := helper.User{}.GetUser(userCreated)
 	jsonValue, _ := json.Marshal(userReturn)
 	w.Write(jsonValue)
 }
@@ -214,6 +218,8 @@ func (p *MMPlugin) postMessage(c *plugin.Context, w http.ResponseWriter, r *http
 
 	incomingWebhookRequest := model.IncomingWebhookRequest{}
 	incomingWebhook := model.IncomingWebhook{}
+	post := model.Post{}
+	postHelper := helper.PostHelper{}
 	err = json.Unmarshal(rawBody, &incomingWebhookRequest)
 	if err != nil {
 		fmt.Fprintln(w, "Errror Decoding Json user")
@@ -224,20 +230,31 @@ func (p *MMPlugin) postMessage(c *plugin.Context, w http.ResponseWriter, r *http
 		fmt.Fprintln(w, "Errror Decoding Json user")
 		return
 	}
-	post := &model.Post{
-		UserId:    incomingWebhook.UserId,
-		ChannelId: incomingWebhook.ChannelId,
-		Message:   incomingWebhookRequest.Text}
-
+	err = json.Unmarshal(rawBody, &post)
+	if err != nil {
+		fmt.Fprintln(w, "Errror Decoding Json user")
+		return
+	}
+	err = json.Unmarshal(rawBody, &postHelper)
+	if err != nil {
+		fmt.Fprintln(w, "Errror Decoding Json user")
+		return
+	}
+	post.Message = incomingWebhookRequest.Text
 	if incomingWebhookRequest.Props != nil {
 		post.Props = incomingWebhookRequest.Props
 	}
 	post.AddProp("attachments", incomingWebhookRequest.Attachments)
-	p.API.SendEphemeralPost(post.UserId, post)
-
+	if post.Message == "" && postHelper.EphemeralText != "" {
+		post.Message = postHelper.EphemeralText
+		p.API.SendEphemeralPost(post.UserId, &post)
+		return
+	}
+	p.API.CreatePost(&post)
 }
 
-func addTeam(p *MMPlugin, w http.ResponseWriter, user model.User) {
+
+func addTeam(p *MMPlugin, w http.ResponseWriter, user model.User, userHelper helper.User) {
 	Client := model.NewAPIv4Client(configuration.MatterMostHost)
 	Client.Login(configuration.MatterMostAdminUsername, configuration.MatterMostAdminPassword) //admin credencials
 	teams, appError := p.API.GetTeams()
@@ -246,6 +263,9 @@ func addTeam(p *MMPlugin, w http.ResponseWriter, user model.User) {
 		return
 	}
 	for _, team := range teams {
+		if !strings.Contains(userHelper.TeamNames, team.Name) {
+			continue
+		}
 		_, response := Client.AddTeamMember(team.Id, user.Id)
 		if response != nil && response.Error != nil {
 			fmt.Fprintln(w, response.Error.ToJson())
