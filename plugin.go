@@ -253,7 +253,6 @@ func (p *MMPlugin) postMessage(c *plugin.Context, w http.ResponseWriter, r *http
 	p.API.CreatePost(&post)
 }
 
-
 func addTeam(p *MMPlugin, w http.ResponseWriter, user model.User, userHelper helper.User) {
 	Client := model.NewAPIv4Client(configuration.MatterMostHost)
 	Client.Login(configuration.MatterMostAdminUsername, configuration.MatterMostAdminPassword) //admin credencials
@@ -262,8 +261,9 @@ func addTeam(p *MMPlugin, w http.ResponseWriter, user model.User, userHelper hel
 		fmt.Fprintln(w, "Response: "+appError.ToJson())
 		return
 	}
+	teamsRequest := strings.Split(userHelper.TeamNames, ",")
 	for _, team := range teams {
-		if !strings.Contains(userHelper.TeamNames, team.DisplayName) {
+		if !helper.Contains(teamsRequest, team.DisplayName) {
 			continue
 		}
 		_, response := Client.AddTeamMember(team.Id, user.Id)
