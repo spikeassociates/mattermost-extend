@@ -263,7 +263,7 @@ func addTeam(p *MMPlugin, w http.ResponseWriter, user model.User, userHelper hel
 		return
 	}
 	for _, team := range teams {
-		if !strings.Contains(userHelper.TeamNames, team.Name) {
+		if !strings.Contains(userHelper.TeamNames, team.DisplayName) {
 			continue
 		}
 		_, response := Client.AddTeamMember(team.Id, user.Id)
