@@ -7,11 +7,11 @@ type User struct {
 	Username  string `json:"username"`
 	Password  string `json:"password,omitempty"`
 	Email     string `json:"email"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
 	Position  string `json:"position"`
 	Roles     string `json:"roles"`
-	TeamNames string `json:"team_names"`
+	TeamNames string `json:"teamnames"`
 }
 
 func (u *User) GetMMUser() model.User {
