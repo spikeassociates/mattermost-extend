@@ -1,10 +1,10 @@
 package configuration
 
-const ChatWithMeToken = "your_chatwithme_token"
-const ChatWithMeExtensionUrl = "http://your_corebosserver/your_corebos/notifications.php?type=CWM"
-const MatterMostHost = "http://your_mattermost_ip:8065"
-const MatterMostAdminUsername = "mattermost_admin_username"
-const MatterMostAdminPassword = "mattermost_admin_password"
+var ChatWithMeToken string
+var ChatWithMeExtensionUrl string
+var MatterMostHost string
+var MatterMostAdminUsername string
+var MatterMostAdminPassword string
 
 var ChatWithMeTriggerWords = []string{
 	"#ayuda",
