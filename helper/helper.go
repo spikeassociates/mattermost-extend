@@ -23,11 +23,16 @@ func ToArray(s string, separator string) []string {
 	for strings.Contains(s, strReplace) {
 		s = strings.Replace(s, strReplace, separator, -1)
 	}
-	if len(s)-1 == strings.LastIndex(s, separator) {
-		s = s[:len(s)-1]
-	}
+	s = RemoveIfISLast(s, separator)
 	if string(s[0]) == separator {
 		s = s[1:]
 	}
 	return strings.Split(s, separator)
+}
+
+func RemoveIfISLast(s string, substring string) string {
+	if len(s)-1 == strings.LastIndex(s, substring) {
+		s = s[:len(s)-1]
+	}
+	return s
 }

@@ -1,6 +1,8 @@
 package helper
 
-import "mattermost-extend/configuration"
+import (
+	"mattermost-extend/configuration"
+)
 
 type Config struct {
 	ChatWithMeToken         string
@@ -14,7 +16,7 @@ type Config struct {
 func (c *Config) UpdateConfigurations() {
 	configuration.ChatWithMeToken = c.ChatWithMeToken
 	configuration.ChatWithMeExtensionUrl = c.ChatWithMeExtensionUrl
-	configuration.MatterMostHost = c.MatterMostHost
+	configuration.MatterMostHost = RemoveIfISLast(c.MatterMostHost, "/")
 	configuration.MatterMostAdminUsername = c.MatterMostAdminUsername
 	configuration.MatterMostAdminPassword = c.MatterMostAdminPassword
 	configuration.ChatWithMeTriggerWords = ToArray(c.ChatWithMeTriggerWords, ",")
