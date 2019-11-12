@@ -24,7 +24,7 @@ func ToArray(s string, separator string) []string {
 		s = strings.Replace(s, strReplace, separator, -1)
 	}
 	if len(s)-1 == strings.LastIndex(s, separator) {
-		s = s[:len(s)-2]
+		s = s[:len(s)-1]
 	}
 	if string(s[0]) == separator {
 		s = s[1:]
