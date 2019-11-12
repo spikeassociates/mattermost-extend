@@ -8,6 +8,7 @@ type Config struct {
 	MatterMostHost          string
 	MatterMostAdminUsername string
 	MatterMostAdminPassword string
+	ChatWithMeTriggerWords  string
 }
 
 func (c *Config) UpdateConfigurations() {
@@ -16,4 +17,5 @@ func (c *Config) UpdateConfigurations() {
 	configuration.MatterMostHost = c.MatterMostHost
 	configuration.MatterMostAdminUsername = c.MatterMostAdminUsername
 	configuration.MatterMostAdminPassword = c.MatterMostAdminPassword
+	configuration.ChatWithMeTriggerWords = ToArray(c.ChatWithMeTriggerWords, ",")
 }

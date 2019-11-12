@@ -30,3 +30,8 @@ settings_schema:
       type: text
       help_text: Enter dhe mattermost admin password
       default: MatterMostAdminPassword
+    - key: ChatWithMeTriggerWords
+      display_name: ChatWithMeTriggerWords
+      type: text
+      help_text: "#ayuda,#busca,#muestra,#actualiza,#edita,#crea,#borra,#ver,#iniciacontador,#paracontador,#registratiempo,#avisame,#lista,#help,#find,#show,#update,#edit,#create,#delete,#see,#starttimer,#stoptimer,#logtime,#remindme,#list,#task,#taskfortime,#taskforproject,#sbsavetime,#time \n all triger word separate with comma"
+      default: "#ayuda,#busca,#muestra,#actualiza,#edita,#crea,#borra,#ver,#iniciacontador,#paracontador,#registratiempo,#avisame,#lista,#help,#find,#show,#update,#edit,#create,#delete,#see,#starttimer,#stoptimer,#logtime,#remindme,#list,#task,#taskfortime,#taskforproject,#sbsavetime,#time"

@@ -177,6 +177,7 @@ func (p *MMPlugin) config(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "ChatWithMeExtensionUrl     ", configuration.ChatWithMeExtensionUrl)
 	fmt.Fprintln(w, "MatterMostHost             ", configuration.MatterMostHost)
 	fmt.Fprintln(w, "MatterMostAdminUsername    ", configuration.MatterMostAdminUsername)
+	fmt.Fprintln(w, "ChatWithMeTriggerWords     ", configuration.ChatWithMeTriggerWords)
 
 }
 
