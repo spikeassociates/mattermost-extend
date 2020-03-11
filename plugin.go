@@ -271,7 +271,8 @@ func (p *MMPlugin) postMessage(c *plugin.Context, w http.ResponseWriter, r *http
 		p.API.SendEphemeralPost(post.UserId, &post)
 		return
 	}
-	p.API.CreatePost(&post)
+	p.API.SendEphemeralPost(post.UserId, &post)
+	//p.API.CreatePost(&post)
 }
 
 func addTeam(p *MMPlugin, w http.ResponseWriter, user model.User, userHelper helper.User) {
