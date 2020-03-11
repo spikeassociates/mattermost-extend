@@ -3,9 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/mattermost/mattermost-server/model"
-	"github.com/mattermost/mattermost-server/plugin"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"mattermost-extend/configuration"
 	"mattermost-extend/configuration/language"
@@ -14,6 +11,10 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+
+	"github.com/mattermost/mattermost-server/model"
+	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/pkg/errors"
 )
 
 type MMPlugin struct {
@@ -98,8 +99,23 @@ func (p *MMPlugin) OnActivate() error {
 func SendPostToChatWithMeExtension(post *model.Post, triggerWord string, p *MMPlugin) error {
 
 	cnl, _ := p.API.GetChannel(post.ChannelId)
-	team, _ := p.API.GetTeam(cnl.TeamId)
-
+	var tname = ""
+	var tdname = ""
+	var cdname = ""
+	if cnl.Type == "D" {
+		user, errr := p.API.GetUser(post.UserId)
+		if errr != nil {
+			return errr
+		}
+		cdname = user.FirstName + user.LastName
+		tname = user.FirstName + "_" + user.LastName
+		tdname = user.FirstName + "_" + user.LastName
+	} else {
+		team, _ := p.API.GetTeam(cnl.TeamId)
+		tname = team.Name
+		tdname = team.DisplayName
+		cdname = cnl.DisplayName
+	}
 	formData := url.Values{
 		"text":         {post.Message},
 		"token":        {configuration.ChatWithMeToken},
@@ -107,10 +123,10 @@ func SendPostToChatWithMeExtension(post *model.Post, triggerWord string, p *MMPl
 		"user_id":      {post.UserId},
 		"channel_id":   {post.ChannelId},
 		"team_id":      {cnl.TeamId},
-		"team_name":    {team.Name},
-		"team_dname":   {team.DisplayName},
+		"team_name":    {tname},
+		"team_dname":   {tdname},
 		"chnl_name":    {cnl.Name},
-		"chnl_dname":   {cnl.DisplayName},
+		"chnl_dname":   {cdname},
 	}
 
 	newPost := &model.Post{
