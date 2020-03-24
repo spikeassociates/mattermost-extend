@@ -7,3 +7,4 @@ var MatterMostAdminUsername string
 var MatterMostAdminPassword string
 
 var ChatWithMeTriggerWords []string
+var ChatWithMeTriggerWordsEphemeral []string

@@ -25,6 +25,17 @@ func main() {
 	plugin.ClientMain(&MMPlugin{})
 }
 
+func (p *MMPlugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
+	r, _ := regexp.Compile("^\\S+")
+	triggerWord := r.FindString(post.Message)
+	if helper.Contains(configuration.ChatWithMeTriggerWordsEphemeral, triggerWord) {
+		SendPostToChatWithMeExtension(post, triggerWord, p)
+		p.API.SendEphemeralPost(post.UserId, post)
+		post.Message = "Posted Ephemeral Trigger Word"
+	}
+	return post, ""
+}
+
 func (p *MMPlugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 
 	//Regular expression used for the replacement logic of incoming and outgoing webhooks
