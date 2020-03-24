@@ -1,7 +1,7 @@
 id: com.corebos.server
 name: Extend mattermost functionality plugin
 server:
-  executable: plugin
+  executable: plugin.exe
 settings_schema:
   header: please insert the configurations
   settings:
@@ -9,27 +9,27 @@ settings_schema:
       display_name: Chat With Me Token
       type: text
       help_text: Open Corebos > Settings > Chat with me > Comma separated list of valid tokens | copy token value
-      default: your_chatwithme_token
+      default: o1hefp3s3igg5rtp9m514wkg5o
     - key: ChatWithMeExtensionUrl
       display_name: Chat With Me Extension Url
       type: text
       help_text: Example http://192.168.80.95/corebos/notifications.php?type=CWM
-      default: http://your_corebosserver/your_corebos/notifications.php?type=CWM
+      default: https://gammaonline.leroymerlin.it/lm/notifications.php?type=CWM
     - key: MatterMostHost
       display_name: Mattermost Host
       type: text
       help_text: Example http://192.168.80.95:8085
-      default: http://your_mattermost_ip:your_mattermost_port
+      default: https://gammaonline.leroymerlin.it:8066
     - key: MatterMostAdminUsername
       display_name: Mattermost Admin Username
       type: text
       help_text: Enter dhe mattermost admin username
-      default: mattermost_admin_username
+      default: LMMMAdmin
     - key: MatterMostAdminPassword
       display_name: Mattermost Admin Password
       type: text
       help_text: Enter dhe mattermost admin password
-      default: MatterMostAdminPassword
+      default: 8E3V5?,z&x.n?y
     - key: ChatWithMeTriggerWords
       display_name: ChatWithMeTriggerWords
       type: text
