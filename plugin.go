@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"mattermost-extend/common"
 	"mattermost-extend/configuration"
 	"mattermost-extend/configuration/language"
 	"mattermost-extend/helper"
@@ -12,8 +13,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/mattermost/mattermost-server/model"
-	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
 )
 
@@ -176,8 +177,8 @@ func (p *MMPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.R
 	switch r.URL.Path {
 	case "/syncuser":
 		p.syncUserWithcoreBOS(c, w, r)
-	case "/hello":
-		p.handleHello(w, r)
+	case "/health":
+		p.handleHealth(w, r)
 	case "/postmessage":
 		p.postMessage(c, w, r)
 	case "/config":
@@ -253,8 +254,8 @@ func (p *MMPlugin) syncUserWithcoreBOS(c *plugin.Context, w http.ResponseWriter,
 	w.Write(jsonValue)
 }
 
-func (p *MMPlugin) handleHello(writer http.ResponseWriter, request *http.Request) {
-	fmt.Fprintln(writer, "Anvil listening")
+func (p *MMPlugin) handleHealth(writer http.ResponseWriter, request *http.Request) {
+	common.DisplayAppSuccessResponse(writer, "", "Spike Mattermost Corebos Server Plugin is running ...")
 }
 
 func (p *MMPlugin) postMessage(c *plugin.Context, w http.ResponseWriter, r *http.Request) {

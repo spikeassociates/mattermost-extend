@@ -1,6 +1,6 @@
 package helper
 
-import "github.com/mattermost/mattermost-server/model"
+import "github.com/mattermost/mattermost-server/v5/model"
 
 type User struct {
 	Id        string `json:"id"`
@@ -16,20 +16,20 @@ type User struct {
 
 func (u *User) GetMMUser() model.User {
 	return model.User{Username: u.Username,
-		Password: u.Password,
-		Email: u.Email,
+		Password:  u.Password,
+		Email:     u.Email,
 		FirstName: u.FirstName,
-		LastName: u.LastName,
-		Position: u.Position,
-		Roles: u.Roles}
+		LastName:  u.LastName,
+		Position:  u.Position,
+		Roles:     u.Roles}
 }
 
 func (u User) GetUser(mmUser *model.User) User {
 	return User{Username: mmUser.Username,
-		Id: mmUser.Id,
-		Email: mmUser.Email,
+		Id:        mmUser.Id,
+		Email:     mmUser.Email,
 		FirstName: mmUser.FirstName,
-		LastName: mmUser.LastName,
-		Position: mmUser.Position,
-		Roles: mmUser.Roles}
+		LastName:  mmUser.LastName,
+		Position:  mmUser.Position,
+		Roles:     mmUser.Roles}
 }
