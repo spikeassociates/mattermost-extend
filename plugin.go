@@ -30,7 +30,7 @@ func (p *MMPlugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mo
 	r, _ := regexp.Compile("^\\S+")
 	triggerWord := r.FindString(post.Message)
 	if helper.Contains(configuration.ChatWithMeTriggerWordsEphemeral, triggerWord) {
-		SendPostToChatWithMeExtension(post, triggerWord, p)
+		_ = SendPostToChatWithMeExtension(post, triggerWord, p)
 		p.API.SendEphemeralPost(post.UserId, post)
 		post.Message = "Posted Ephemeral Trigger Word"
 	}
@@ -44,7 +44,7 @@ func (p *MMPlugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 	triggerWord := r.FindString(post.Message)
 
 	if helper.Contains(configuration.ChatWithMeTriggerWords, triggerWord) {
-		SendPostToChatWithMeExtension(post, triggerWord, p)
+		_ = SendPostToChatWithMeExtension(post, triggerWord, p)
 	}
 
 	//Regular expression user for special commands like: open, create, edit, list that
@@ -147,9 +147,19 @@ func SendPostToChatWithMeExtension(post *model.Post, triggerWord string, p *MMPl
 		Type:      model.POST_SLACK_ATTACHMENT,
 	}
 	resp, err := http.PostForm(configuration.ChatWithMeExtensionUrl, formData)
-	defer resp.Body.Close()
-
+	defer func() {
+		if resp != nil {
+			_ = resp.Body.Close()
+		}
+	}()
+	//defer resp.Body.Close()
 	if err != nil {
+		errorPost := &model.Post{
+			UserId:    post.UserId,
+			ChannelId: post.ChannelId,
+			Message:   ":x::x::x: Connection with super-brain is currently not available, please be patient while the universe reorganizes to get back in touch and try in a little while. Thanks! :milky_way:",
+		}
+		_, _ = p.API.CreatePost(errorPost)
 		return err
 	}
 
