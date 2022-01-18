@@ -191,8 +191,6 @@ func (p *MMPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.R
 		p.handleHealth(w, r)
 	case "/postmessage":
 		p.postMessage(c, w, r)
-	case "/config":
-		p.config(w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -207,16 +205,6 @@ func (p *MMPlugin) OnConfigurationChange() error {
 	}
 	c.UpdateConfigurations()
 	return nil
-}
-
-func (p *MMPlugin) config(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Fprintln(w, "ChatWithMeToken            ", configuration.ChatWithMeToken)
-	fmt.Fprintln(w, "ChatWithMeExtensionUrl     ", configuration.ChatWithMeExtensionUrl)
-	fmt.Fprintln(w, "MatterMostHost             ", configuration.MatterMostHost)
-	fmt.Fprintln(w, "MatterMostAdminUsername    ", configuration.MatterMostAdminUsername)
-	fmt.Fprintln(w, "ChatWithMeTriggerWords     ", configuration.ChatWithMeTriggerWords)
-
 }
 
 func (p *MMPlugin) syncUserWithcoreBOS(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
