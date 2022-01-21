@@ -2,6 +2,10 @@ package common
 
 import (
 	"encoding/json"
+	"errors"
+	"io/ioutil"
+	"mattermost-extend/configuration"
+	"mattermost-extend/helper"
 	"net/http"
 )
 
@@ -48,4 +52,22 @@ func DisplayAppErrorResponse(w http.ResponseWriter, errorMessage interface{}, co
 	if j, err := json.Marshal(errorResource{Success: false, Data: errObj}); err == nil {
 		w.Write(j)
 	}
+}
+
+func CheckRequestToken(r *http.Request) ([]byte, error) {
+	request, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	tokenChecker := helper.TokenChecker{}
+	err = json.Unmarshal(request, &tokenChecker)
+	if err != nil {
+		return nil, err
+	}
+
+	if !helper.Contains(tokenChecker.Token, configuration.ChatWithMeToken) {
+		return nil, errors.New("chatwithme tokens are not the same in MM and CRM")
+	}
+	return request, err
 }

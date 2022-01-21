@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"mattermost-extend/common"
 	"mattermost-extend/configuration"
 	"mattermost-extend/configuration/language"
@@ -209,7 +208,8 @@ func (p *MMPlugin) OnConfigurationChange() error {
 
 func (p *MMPlugin) syncUserWithcoreBOS(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	rawBody, err := ioutil.ReadAll(r.Body)
+	//rawBody, err := ioutil.ReadAll(r.Body)
+	rawBody, err := common.CheckRequestToken(r)
 	if err != nil {
 		fmt.Fprintln(w, "Errror Geting body")
 		return
@@ -257,7 +257,8 @@ func (p *MMPlugin) handleHealth(writer http.ResponseWriter, request *http.Reques
 }
 
 func (p *MMPlugin) postMessage(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
-	rawBody, err := ioutil.ReadAll(r.Body)
+	//rawBody, err := ioutil.ReadAll(r.Body)
+	rawBody, err := common.CheckRequestToken(r)
 	if err != nil {
 		fmt.Fprintln(w, "Errror Geting body")
 		return
