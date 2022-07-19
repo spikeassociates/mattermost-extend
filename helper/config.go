@@ -1,7 +1,7 @@
 package helper
 
 import (
-	"github.com/charity1475/mattermost-extend/configuration"
+	"mattermost-extend/configuration"
 )
 
 type Config struct {
