@@ -210,7 +210,7 @@ func (p *MMPlugin) syncUserWithcoreBOS(c *plugin.Context, w http.ResponseWriter,
 	defer r.Body.Close()
 	rawBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Fprintln(w, "Errror Geting body")
+		fmt.Fprintln(w, "Error Getting body")
 		return
 	}
 
