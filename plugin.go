@@ -3,6 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"mattermost-extend/common"
 	"mattermost-extend/configuration"
@@ -12,10 +15,6 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
-
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
-	"github.com/pkg/errors"
 )
 
 type MMPlugin struct {
@@ -27,7 +26,7 @@ func main() {
 }
 
 func (p *MMPlugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
-	r, _ := regexp.Compile("^\\S+")
+	r := regexp.MustCompile("^\\S+")
 	triggerWord := r.FindString(post.Message)
 	if helper.Contains(configuration.ChatWithMeTriggerWordsEphemeral, triggerWord) {
 		_ = SendPostToChatWithMeExtension(post, triggerWord, p)
