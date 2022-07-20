@@ -39,7 +39,7 @@ func (p *MMPlugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mo
 func (p *MMPlugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 
 	//Regular expression used for the replacement logic of incoming and outgoing webhooks
-	r, _ := regexp.Compile("^\\S+")
+	r := regexp.MustCompile("^\\S+")
 	triggerWord := r.FindString(post.Message)
 
 	if helper.Contains(configuration.ChatWithMeTriggerWords, triggerWord) {
