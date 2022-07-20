@@ -114,9 +114,9 @@ func SendPostToChatWithMeExtension(post *model.Post, triggerWord string, p *MMPl
 	var tdname = ""
 	var cdname = ""
 	if cnl.Type == "D" {
-		user, errr := p.API.GetUser(post.UserId)
-		if errr != nil {
-			return errr
+		user, err := p.API.GetUser(post.UserId)
+		if err != nil {
+			return err
 		}
 		cdname = user.FirstName + user.LastName
 		tname = user.FirstName + "_" + user.LastName
