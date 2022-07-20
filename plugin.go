@@ -217,7 +217,7 @@ func (p *MMPlugin) syncUserWithcoreBOS(c *plugin.Context, w http.ResponseWriter,
 	userRequest := helper.User{}
 	err = json.Unmarshal(rawBody, &userRequest)
 	if err != nil {
-		fmt.Fprintln(w, "Errror Decoding Json user")
+		fmt.Fprintln(w, "Error Decoding Json user")
 		return
 	}
 
@@ -258,7 +258,7 @@ func (p *MMPlugin) handleHealth(writer http.ResponseWriter, request *http.Reques
 func (p *MMPlugin) postMessage(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	rawBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Fprintln(w, "Errror Geting body")
+		fmt.Fprintln(w, "Error Getting body")
 		return
 	}
 
@@ -268,22 +268,22 @@ func (p *MMPlugin) postMessage(c *plugin.Context, w http.ResponseWriter, r *http
 	postHelper := helper.PostHelper{}
 	err = json.Unmarshal(rawBody, &incomingWebhookRequest)
 	if err != nil {
-		fmt.Fprintln(w, "Errror Decoding Json user")
+		fmt.Fprintln(w, "Error Decoding Json user")
 		return
 	}
 	err = json.Unmarshal(rawBody, &incomingWebhook)
 	if err != nil {
-		fmt.Fprintln(w, "Errror Decoding Json user")
+		fmt.Fprintln(w, "Error Decoding Json user")
 		return
 	}
 	err = json.Unmarshal(rawBody, &post)
 	if err != nil {
-		fmt.Fprintln(w, "Errror Decoding Json user")
+		fmt.Fprintln(w, "Error Decoding Json user")
 		return
 	}
 	err = json.Unmarshal(rawBody, &postHelper)
 	if err != nil {
-		fmt.Fprintln(w, "Errror Decoding Json user")
+		fmt.Fprintln(w, "Error Decoding Json user")
 		return
 	}
 	post.Message = incomingWebhookRequest.Text
