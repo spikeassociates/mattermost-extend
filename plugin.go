@@ -47,7 +47,7 @@ func (p *MMPlugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 	}
 
 	//Regular expression user for special commands like: open, create, edit, list that
-	r, _ = regexp.Compile("^#(\\w+) (\\w+)(?: (\\d+))?$")
+	r = regexp.MustCompile("^#(\\w+) (\\w+)(?: (\\d+))?$")
 	matches := r.FindStringSubmatch(strings.TrimSpace(post.Message))
 
 	if len(matches) > 0 {
