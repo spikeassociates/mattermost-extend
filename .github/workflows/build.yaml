@@ -1,22 +1,28 @@
 name: release
-
 on:
   release:
     types:
       - created
 
 jobs:
-
   build:
     name: build the binary file for linux
     runs-on: ubuntu-latest
     steps:
       - name: checkout the repository
         uses: actions/checkout@v3
-      - uses: thatisuday/go-cross-build@v1
+      - uses: actions/setup-go@v3
         with:
           go-version-file: '../../go.mod'
-          platforms: 'linux/amd64, darwin/amd64, windows/amd64'
-          package: 'chatwithme'
-          compress: true
-          dest: 'dist'
+      - run: GOOS=linux GOARCH=amd64 go build -o plugin plugin.go
+      - name: Compress action step
+        uses: a7ul/tar-action@v1.1.0
+        id: compress
+        with:
+          command: c
+          files: |
+            plugin
+            plugin.json
+          outPath: plugin.tar.gz
+
+
