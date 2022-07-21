@@ -1,0 +1,22 @@
+name: release
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+
+  build:
+    name: build the binary file for linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout the repository
+        uses: actions/checkout@v3
+      - uses: thatisuday/go-cross-build@v1
+        with:
+          go-version-file: '../../go.mod'
+          platforms: 'linux/amd64, darwin/amd64, windows/amd64'
+          package: 'chatwithme'
+          compress: true
+          dest: 'dist'
