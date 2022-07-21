@@ -11,18 +11,27 @@ jobs:
     steps:
       - name: checkout the repository
         uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: wangyoucao577/go-release-action@v1.30
         with:
           go-version-file: 'go.mod'
-      - run: GOOS=linux GOARCH=amd64 go build -o plugin plugin.go
-      - name: Compress action step
-        uses: a7ul/tar-action@v1.1.0
-        id: compress
-        with:
-          command: c
-          files: |
-            plugin
-            plugin.json
-          outPath: plugin.tar.gz
+          github_token: ${{ secrets.CHATWITHME }}
+          goos: linux
+          goarch: amd64
+          extra_files: plugin.yaml
+
+
+#      - uses: actions/setup-go@v3
+#        with:
+#          go-version-file: 'go.mod'
+#      - run: GOOS=linux GOARCH=amd64 go build -o plugin plugin.go
+#      - name: Compress action step
+#        uses: a7ul/tar-action@v1.1.0
+#        id: compress
+#        with:
+#          command: c
+#          files: |
+#            plugin
+#            plugin.json
+#          outPath: plugin.tar.gz
 
 
