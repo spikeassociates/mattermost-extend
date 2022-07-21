@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/mattermost/mattermost-server/v5 v5.39.3
 	github.com/pkg/errors v0.9.1
+	github.com/stretchr/testify v1.7.0
 )
 
 replace github.com/spikeassociates/mattermost-extend => github.com/charity1475/mattermost-extend v0.0.0-20220719195710-6f36095c981e
@@ -48,7 +49,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rs/xid v1.3.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
-	github.com/stretchr/testify v1.7.0 // indirect
+	github.com/stretchr/objx v0.3.0 // indirect
 	github.com/tinylib/msgp v1.1.6 // indirect
 	github.com/wiggin77/cfg v1.0.2 // indirect
 	github.com/wiggin77/merror v1.0.3 // indirect
