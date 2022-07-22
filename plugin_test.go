@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
+	"mattermost-extend/configuration"
 	"mattermost-extend/helper"
 	"net/http/httptest"
 	"testing"
@@ -95,13 +96,16 @@ func TestSendPostToChatWithMeExtension(t *testing.T) {
 	defer api.AssertExpectations(t)
 	api.On("GetChannel", post.ChannelId).Return(channel, nil)
 	api.On("GetUser", post.UserId).Return(user, nil)
+	api.On("GetTeam", channel.TeamId).Return(team, nil)
 	errorPost := &model.Post{
 		UserId:    post.UserId,
 		ChannelId: post.ChannelId,
 		Message:   ":x::x::x: Connection with super-brain is currently not available, please be patient while the universe reorganizes to get back in touch and try in a little while. Thanks! :milky_way:",
 	}
 	api.On("CreatePost", errorPost).Return(nil, nil)
-	//TODO: configure ChatWithMe extension url
+	api.On("SendEphemeralPost", errorPost.UserId, errorPost)
+	configuration.ChatWithMeToken = "CHAT WITH ME TOKEN HERE"
+	configuration.ChatWithMeExtensionUrl = "http://62.171.173.175/essdev/"
 	err := SendPostToChatWithMeExtension(post, "create", testPlugin)
 	require.NoError(t, err)
 	assert.Equal(t, nil, err)
