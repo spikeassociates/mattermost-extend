@@ -105,7 +105,7 @@ func TestSendPostToChatWithMeExtension(t *testing.T) {
 	api.On("CreatePost", errorPost).Return(nil, nil)
 	api.On("SendEphemeralPost", errorPost.UserId, errorPost)
 	configuration.ChatWithMeToken = "CHAT WITH ME TOKEN HERE"
-	configuration.ChatWithMeExtensionUrl = "http://62.171.173.175/essdev/"
+	configuration.ChatWithMeExtensionUrl = "CHAT WITH ME URL HERE"
 	err := SendPostToChatWithMeExtension(post, "create", testPlugin)
 	require.NoError(t, err)
 	assert.Equal(t, nil, err)
