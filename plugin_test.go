@@ -203,3 +203,25 @@ func TestContains(t *testing.T) {
 		assert.Equal(t, testCase.expected, result)
 	}
 }
+func TestRemoveIfLast(t *testing.T) {
+	testCases := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "positive",
+			input:    "e",
+			expected: "mileAg",
+		},
+		{
+			name:     "negative",
+			input:    "mil",
+			expected: "mileAge",
+		},
+	}
+	for _, testCase := range testCases {
+		result := helper.RemoveIfISLast("mileAge", testCase.input)
+		assert.Equal(t, testCase.expected, result)
+	}
+}
