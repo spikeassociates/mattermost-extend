@@ -158,6 +158,7 @@ func SendPostToChatWithMeExtension(post *model.Post, triggerWord string, p *MMPl
 			ChannelId: post.ChannelId,
 			Message:   ":x::x::x: Connection with super-brain is currently not available, please be patient while the universe reorganizes to get back in touch and try in a little while. Thanks! :milky_way:",
 		}
+		fmt.Printf("ERROR: %s", err)
 		_, _ = p.API.CreatePost(errorPost)
 		return err
 	}
