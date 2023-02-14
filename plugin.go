@@ -3,6 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"mattermost-extend/common"
 	"mattermost-extend/configuration"
@@ -12,10 +15,6 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
-
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
-	"github.com/pkg/errors"
 )
 
 type MMPlugin struct {
@@ -27,7 +26,7 @@ func main() {
 }
 
 func (p *MMPlugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
-	r, _ := regexp.Compile("^\\S+")
+	r := regexp.MustCompile("^\\S+")
 	triggerWord := r.FindString(post.Message)
 	if helper.Contains(configuration.ChatWithMeTriggerWordsEphemeral, triggerWord) {
 		_ = SendPostToChatWithMeExtension(post, triggerWord, p)
@@ -40,7 +39,7 @@ func (p *MMPlugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mo
 func (p *MMPlugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 
 	//Regular expression used for the replacement logic of incoming and outgoing webhooks
-	r, _ := regexp.Compile("^\\S+")
+	r := regexp.MustCompile("^\\S+")
 	triggerWord := r.FindString(post.Message)
 
 	if helper.Contains(configuration.ChatWithMeTriggerWords, triggerWord) {
@@ -48,7 +47,7 @@ func (p *MMPlugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 	}
 
 	//Regular expression user for special commands like: open, create, edit, list that
-	r, _ = regexp.Compile("^#(\\w+) (\\w+)(?: (\\d+))?$")
+	r = regexp.MustCompile("^#(\\w+) (\\w+)(?: (\\d+))?$")
 	matches := r.FindStringSubmatch(strings.TrimSpace(post.Message))
 
 	if len(matches) > 0 {
@@ -115,9 +114,9 @@ func SendPostToChatWithMeExtension(post *model.Post, triggerWord string, p *MMPl
 	var tdname = ""
 	var cdname = ""
 	if cnl.Type == "D" {
-		user, errr := p.API.GetUser(post.UserId)
-		if errr != nil {
-			return errr
+		user, err := p.API.GetUser(post.UserId)
+		if err != nil {
+			return err
 		}
 		cdname = user.FirstName + user.LastName
 		tname = user.FirstName + "_" + user.LastName
@@ -159,6 +158,7 @@ func SendPostToChatWithMeExtension(post *model.Post, triggerWord string, p *MMPl
 			ChannelId: post.ChannelId,
 			Message:   ":x::x::x: Connection with super-brain is currently not available, please be patient while the universe reorganizes to get back in touch and try in a little while. Thanks! :milky_way:",
 		}
+		fmt.Printf("ERROR: %s", err)
 		_, _ = p.API.CreatePost(errorPost)
 		return err
 	}
@@ -211,14 +211,14 @@ func (p *MMPlugin) syncUserWithcoreBOS(c *plugin.Context, w http.ResponseWriter,
 	defer r.Body.Close()
 	rawBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Fprintln(w, "Errror Geting body")
+		fmt.Fprintln(w, "Error Getting body")
 		return
 	}
 
 	userRequest := helper.User{}
 	err = json.Unmarshal(rawBody, &userRequest)
 	if err != nil {
-		fmt.Fprintln(w, "Errror Decoding Json user")
+		fmt.Fprintln(w, "Error Decoding Json user")
 		return
 	}
 
@@ -259,7 +259,7 @@ func (p *MMPlugin) handleHealth(writer http.ResponseWriter, request *http.Reques
 func (p *MMPlugin) postMessage(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	rawBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Fprintln(w, "Errror Geting body")
+		fmt.Fprintln(w, "Error Getting body")
 		return
 	}
 
@@ -269,22 +269,22 @@ func (p *MMPlugin) postMessage(c *plugin.Context, w http.ResponseWriter, r *http
 	postHelper := helper.PostHelper{}
 	err = json.Unmarshal(rawBody, &incomingWebhookRequest)
 	if err != nil {
-		fmt.Fprintln(w, "Errror Decoding Json user")
+		fmt.Fprintln(w, "Error Decoding Json user")
 		return
 	}
 	err = json.Unmarshal(rawBody, &incomingWebhook)
 	if err != nil {
-		fmt.Fprintln(w, "Errror Decoding Json user")
+		fmt.Fprintln(w, "Error Decoding Json user")
 		return
 	}
 	err = json.Unmarshal(rawBody, &post)
 	if err != nil {
-		fmt.Fprintln(w, "Errror Decoding Json user")
+		fmt.Fprintln(w, "Error Decoding Json user")
 		return
 	}
 	err = json.Unmarshal(rawBody, &postHelper)
 	if err != nil {
-		fmt.Fprintln(w, "Errror Decoding Json user")
+		fmt.Fprintln(w, "Error Decoding Json user")
 		return
 	}
 	post.Message = incomingWebhookRequest.Text

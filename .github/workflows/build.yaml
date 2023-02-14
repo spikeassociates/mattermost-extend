@@ -1,0 +1,24 @@
+name: release
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  build:
+    name: build the binary file for linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout the repository
+        uses: actions/checkout@v3
+      - uses: wangyoucao577/go-release-action@v1.30
+        with:
+          go-version-file: 'go.mod'
+          github_token: ${{ secrets.CHATWITHME }}
+          goos: linux
+          goarch: amd64
+          extra_files: plugin.yaml
+          binary_name: "plugin"
+
+
+
