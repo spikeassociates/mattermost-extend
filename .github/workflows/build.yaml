@@ -14,11 +14,11 @@ jobs:
       - uses: wangyoucao577/go-release-action@v1.30
         with:
           go-version-file: 'go.mod'
-          binary_name: "plugin"
           github_token: ${{ secrets.CHATWITHME }}
           goos: linux
           goarch: amd64
           extra_files: plugin.yaml
+          binary_name: "plugin"
 
 
 
